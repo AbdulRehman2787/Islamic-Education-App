@@ -17,10 +17,8 @@ from models.classroom import Classroom
 from models.contact_setting import ContactSetting
 from models.student_progress import StudentProgress
 from models.notification import Notification
-from models.daily_video import DailyVideo
 from routers.auth import get_current_teacher
 from services.auth_service import AuthService
-from services.classroom_service import classroom_manager
 from config import settings
 
 router = APIRouter(prefix="/api/admin", tags=["Admin Management"])
@@ -102,7 +100,6 @@ def approve_student(
     db.commit()
     db.refresh(student)
 
-    # Format WhatsApp notification share text
     base_url = str(request.base_url).rstrip("/")
     login_url = f"{base_url}/login"
     wa_message = (
@@ -636,38 +633,8 @@ def update_contact_settings(
     return {"success": True, "message": "رابطہ کی ترتیبات کامیابی سے محفوظ ہو گئیں۔"}
 
 # ==========================================
-# 5. CLASSROOM MANAGEMENT
+# 5. ZOOM CLASSROOM MANAGEMENT
 # ==========================================
-
-@router.post("/classroom/toggle-live")
-async def toggle_classroom_live(
-    teacher: Teacher = Depends(get_current_teacher),
-    db: Session = Depends(get_db)
-):
-    room = db.query(Classroom).filter(Classroom.permanent_id == settings.PERMANENT_CLASS_ID).first()
-    if not room:
-        raise HTTPException(status_code=404, detail="کلاس روم نہیں ملا")
-
-    room.is_live = not room.is_live
-    if room.is_live:
-        room.current_session_id = f"sess_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:6]}"
-        msg = "کلاس روم لائیو کر دیا گیا ہے۔ طلبہ اب شامل ہو سکتے ہیں۔"
-        # Broadcast notification
-        notice = Notification(
-            title="کلاس لائیو شروع ہو گئی ہے!",
-            message="استاد محترم نے لائیو کلاس روم شروع کر دیا ہے۔ فوراً کلاس میں شامل ہوں۔",
-            type="live"
-        )
-        db.add(notice)
-    else:
-        msg = "کلاس روم ختم کر دیا گیا ہے۔"
-        await classroom_manager.broadcast_to_students({
-            "type": "class_ended",
-            "message": "استاد محترم نے کلاس کا وقت مکمل ہونے پر سیشن ختم کر دیا ہے۔"
-        })
-
-    db.commit()
-    return {"success": True, "message": msg, "is_live": room.is_live}
 
 @router.post("/classroom/zoom-settings")
 def update_zoom_settings(
@@ -721,143 +688,3 @@ def toggle_zoom_live(
     db.commit()
     status_text = "لائیو کر دی گئی ہے" if room.is_zoom_live else "آف لائن کر دی گئی ہے"
     return {"success": True, "message": f"زووم کلاس اب {status_text}۔", "is_zoom_live": room.is_zoom_live}
-
-# ==========================================
-# 6. DAILY VIDEOS MANAGEMENT (REQUIREMENT 4)
-# ==========================================
-
-def extract_youtube_info(url: str):
-    if not url:
-        return {"is_youtube": False, "youtube_id": None, "thumbnail": None}
-    match = re.search(r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})', url)
-    if match:
-        yt_id = match.group(1)
-        return {
-            "is_youtube": True,
-            "youtube_id": yt_id,
-            "thumbnail": f"https://img.youtube.com/vi/{yt_id}/hqdefault.jpg"
-        }
-    return {"is_youtube": False, "youtube_id": None, "thumbnail": None}
-
-@router.get("/daily-videos")
-def list_daily_videos(
-    teacher: Teacher = Depends(get_current_teacher),
-    db: Session = Depends(get_db)
-):
-    videos = db.query(DailyVideo).order_by(DailyVideo.date_posted.desc(), DailyVideo.id.desc()).all()
-    return {
-        "total": len(videos),
-        "videos": [
-            {
-                "id": v.id,
-                "title": v.title,
-                "description": v.description,
-                "video_type": v.video_type,
-                "video_url": v.video_url,
-                "thumbnail_url": v.thumbnail_url,
-                "category": v.category,
-                "duration": v.duration,
-                "is_published": v.is_published,
-                "date_posted": v.date_posted.strftime("%Y-%m-%d") if v.date_posted else "",
-                "created_at": v.created_at.strftime("%Y-%m-%d %H:%M") if v.created_at else ""
-            }
-            for v in videos
-        ]
-    }
-
-@router.post("/daily-videos")
-async def create_daily_video(
-    title: str = Form(...),
-    description: Optional[str] = Form(None),
-    category: Optional[str] = Form("روزانہ کا سبق"),
-    video_type: Optional[str] = Form("url"),
-    video_url: Optional[str] = Form(None),
-    duration: Optional[str] = Form(""),
-    video_file: Optional[UploadFile] = File(None),
-    teacher: Teacher = Depends(get_current_teacher),
-    db: Session = Depends(get_db)
-):
-    final_video_url = ""
-    final_thumbnail_url = "https://images.unsplash.com/photo-1609599006353-e629aaabfeae?auto=format&fit=crop&w=600&q=80"
-    v_type = video_type or "url"
-
-    if v_type == "file" and video_file and video_file.filename:
-        # File upload handling
-        ext = os.path.splitext(video_file.filename)[1].lower()
-        if ext not in [".mp4", ".webm", ".mkv", ".mov", ".m4v"]:
-            raise HTTPException(status_code=400, detail="صرف ویڈیو فائلیں (mp4, webm, mov, mkv) اپلوڈ کی جا سکتی ہیں۔")
-        
-        os.makedirs("uploads/videos", exist_ok=True)
-        unique_name = f"video_{uuid.uuid4().hex[:10]}{ext}"
-        save_path = os.path.join("uploads", "videos", unique_name)
-        
-        content = await video_file.read()
-        with open(save_path, "wb") as f:
-            f.write(content)
-        
-        final_video_url = f"/uploads/videos/{unique_name}"
-        final_thumbnail_url = "/static/images/app_logo.svg"
-    else:
-        # URL handling
-        v_type = "url"
-        if not video_url or not video_url.strip():
-            raise HTTPException(status_code=400, detail="براہ کرم ویڈیو کا درست لنک فراہم کریں۔")
-        final_video_url = video_url.strip()
-        yt_info = extract_youtube_info(final_video_url)
-        if yt_info["is_youtube"] and yt_info["thumbnail"]:
-            final_thumbnail_url = yt_info["thumbnail"]
-
-    video = DailyVideo(
-        title=title.strip(),
-        description=description.strip() if description else "",
-        category=category.strip() if category else "روزانہ کا سبق",
-        video_type=v_type,
-        video_url=final_video_url,
-        thumbnail_url=final_thumbnail_url,
-        duration=duration.strip() if duration else "",
-        is_published=True,
-        date_posted=datetime.utcnow(),
-        created_at=datetime.utcnow()
-    )
-    db.add(video)
-    db.commit()
-    db.refresh(video)
-
-    return {"success": True, "message": "روزانہ کی ویڈیو کامیابی سے شامل کر دی گئی۔", "video_id": video.id}
-
-@router.post("/daily-videos/{video_id}/delete")
-def delete_daily_video(
-    video_id: int,
-    teacher: Teacher = Depends(get_current_teacher),
-    db: Session = Depends(get_db)
-):
-    video = db.query(DailyVideo).filter(DailyVideo.id == video_id).first()
-    if not video:
-        raise HTTPException(status_code=404, detail="ویڈیو نہیں ملی")
-
-    # If it was an uploaded local file, remove it from disk
-    if video.video_type == "file" and video.video_url:
-        clean_path = video.video_url.lstrip("/")
-        if os.path.exists(clean_path):
-            try:
-                os.remove(clean_path)
-            except Exception:
-                pass
-
-    db.delete(video)
-    db.commit()
-    return {"success": True, "message": "ویڈیو کامیابی سے حذف (Delete) کر دی گئی۔"}
-
-@router.post("/daily-videos/{video_id}/toggle-publish")
-def toggle_daily_video_publish(
-    video_id: int,
-    teacher: Teacher = Depends(get_current_teacher),
-    db: Session = Depends(get_db)
-):
-    video = db.query(DailyVideo).filter(DailyVideo.id == video_id).first()
-    if not video:
-        raise HTTPException(status_code=404, detail="ویڈیو نہیں ملی")
-
-    video.is_published = not video.is_published
-    db.commit()
-    return {"success": True, "message": "ویڈیو کا اسٹیٹس تبدیل ہو گیا۔", "is_published": video.is_published}

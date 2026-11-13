@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from config import settings
 from database import init_db
-from routers import auth, teacher, student, student_auth, admin_management, websocket, views
+from routers import auth, teacher, student, student_auth, admin_management, views
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -48,7 +48,6 @@ app.include_router(teacher.router)
 app.include_router(student.router)
 app.include_router(student_auth.router)
 app.include_router(admin_management.router)
-app.include_router(websocket.router)
 app.include_router(views.router)
 
 if __name__ == "__main__":
