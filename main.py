@@ -45,7 +45,7 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 # Register Routers
 app.include_router(auth.router)
 app.include_router(teacher.router)
-app.include_router(student.router)
+#app.include_router(student.router)#
 app.include_router(student_auth.router)
 app.include_router(admin_management.router)
 app.include_router(views.router)

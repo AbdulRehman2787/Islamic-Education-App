@@ -12,42 +12,58 @@
         </div>
         <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">تلاوتِ قرآنِ کریم مع اردو ترجمہ و آڈیو</h1>
         <p class="text-xs sm:text-sm text-slate-600 font-urdu leading-relaxed">
-            کسی بھی سورۃ مبارکہ کا انتخاب کریں، خوبصورت تلاوت سنیں اور ساتھ ساتھ لفظ بہ لفظ سلیس اردو ترجمہ کا مطالعہ کریں۔
+            اپنی پسندیدہ سورۃ اور قاری کا انتخاب کریں، خوبصورت تلاوت سنیں اور ساتھ ساتھ لفظ بہ لفظ سلیس اردو ترجمہ کا مطالعہ کریں۔
         </p>
     </div>
 
     <!-- Quran Player / Reader UI -->
     <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
         <!-- Top Toolbar & Audio Player -->
-        <div class="bg-slate-900 text-white p-6 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="flex items-center gap-4 w-full md:w-auto">
+        <div class="bg-slate-900 text-white p-6 border-b border-slate-800 grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+            
+            <!-- Current Info -->
+            <div class="flex items-center gap-4">
                 <div class="w-14 h-14 rounded-2xl bg-emerald-800 text-amber-300 flex items-center justify-center text-3xl flex-shrink-0 shadow-lg">
                     <i class="fa-solid fa-quran"></i>
                 </div>
                 <div>
-                    <h2 id="currentSurahTitle" class="text-xl font-bold font-arabic text-amber-300">سورۃ الفاتحہ</h2>
-                    <p id="currentSurahInfo" class="text-xs text-slate-400">مکیہ • 7 آیات • قاری مشاری راشد العفاسی</p>
+                    <h2 id="currentSurahTitle" class="text-lg font-bold font-arabic text-amber-300">سورۃ الفاتحہ</h2>
+                    <p id="currentSurahInfo" class="text-[11px] text-slate-400">مشاری راشد العفاسی</p>
                 </div>
             </div>
 
-            <!-- Surah Selector -->
-            <div class="w-full md:w-72">
-                <label class="block text-[11px] text-slate-400 font-semibold mb-1">سورۃ منتخب کریں:</label>
-                <select id="surahSelect" onchange="changeSurah()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-arabic text-right">
-                    <option value="1">1. سورۃ الفاتحہ (Al-Fatiha)</option>
-                    <option value="2">2. سورۃ البقرہ (ابتدائی و آیت الکرسی)</option>
-                    <option value="36">36. سورۃ یٰسین (Yaseen)</option>
-                    <option value="55">55. سورۃ الرحمٰن (Ar-Rahman)</option>
-                    <option value="67">67. سورۃ الملک (Al-Mulk)</option>
-                    <option value="112">112. سورۃ الاخلاص (Al-Ikhlas)</option>
-                    <option value="113">113. سورۃ الفلق (Al-Falaq)</option>
-                    <option value="114">114. سورۃ الناس (An-Nas)</option>
-                </select>
+            <!-- Selectors (Surah & Reciter) -->
+            <div class="flex flex-col sm:flex-row gap-3">
+                <!-- Surah Selector -->
+                <div class="w-full">
+                    <label class="block text-[11px] text-slate-400 font-semibold mb-1">سورۃ منتخب کریں:</label>
+                    <select id="surahSelect" onchange="updateQuranPlayer()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-arabic">
+                        <option value="1">1. سورۃ الفاتحہ</option>
+                        <option value="112">112. سورۃ الاخلاص</option>
+                        <option value="113">113. سورۃ الفلق</option>
+                        <option value="114">114. سورۃ الناس</option>
+                    </select>
+                </div>
+
+                <!-- Reciter Selector -->
+                <div class="w-full">
+                    <label class="block text-[11px] text-slate-400 font-semibold mb-1">قاری منتخب کریں:</label>
+                    <select id="reciterSelect" onchange="updateQuranPlayer()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="afs">مشاری راشد العفاسی</option>
+                        <option value="sds">عبدالرحمن السدیس</option>
+                        <option value="shuraim">سعود الشریم</option>
+                        <option value="abdulsamad">عبدالباسط عبدالصمد</option>
+                        <option value="ajm">احمد العجمی</option>
+                        <option value="maher">ماهر المعقيلي</option>
+                        <option value="minshawi">محمد صديق المنشاوي</option>
+                        <option value="dosari">اسماعيل دوسري</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Audio Player -->
-            <div class="w-full md:w-auto flex flex-col items-center gap-2">
-                <audio id="quranAudio" controls class="w-full md:w-64 rounded-xl">
+            <div class="w-full flex justify-center md:justify-end">
+                <audio id="quranAudio" controls class="w-full md:w-60 rounded-xl">
                     <source id="audioSource" src="https://server8.mp3quran.net/afs/001.mp3" type="audio/mpeg">
                     براؤزر آڈیو پلیئر سپورٹ نہیں کرتا۔
                 </audio>
@@ -63,97 +79,7 @@
 
             <!-- Verses List rendered dynamically -->
             <div id="versesList" class="space-y-6">
-                <!-- Sample Verses for Al-Fatiha -->
-                <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono flex items-center justify-center">1</span>
-                        <span class="text-xs text-slate-400">آیت نمبر 1</span>
-                    </div>
-                    <div class="text-right font-arabic text-2xl sm:text-3xl text-slate-900 leading-loose py-2 font-bold">
-                        بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ۝١
-                    </div>
-                    <div class="text-right font-urdu text-sm sm:text-base text-emerald-900 leading-relaxed pt-2 border-t border-slate-100">
-                        شروع اللہ کے نام سے جو بڑا مہربان نہایت رحم فرمانے والا ہے۔
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono flex items-center justify-center">2</span>
-                        <span class="text-xs text-slate-400">آیت نمبر 2</span>
-                    </div>
-                    <div class="text-right font-arabic text-2xl sm:text-3xl text-slate-900 leading-loose py-2 font-bold">
-                        الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝٢
-                    </div>
-                    <div class="text-right font-urdu text-sm sm:text-base text-emerald-900 leading-relaxed pt-2 border-t border-slate-100">
-                        سب تعریفیں اللہ ہی کے لیے ہیں جو تمام جہانوں کا پالنے والا ہے۔
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono flex items-center justify-center">3</span>
-                        <span class="text-xs text-slate-400">آیت نمبر 3</span>
-                    </div>
-                    <div class="text-right font-arabic text-2xl sm:text-3xl text-slate-900 leading-loose py-2 font-bold">
-                        الرَّحْمَٰنِ الرَّحِيمِ ۝٣
-                    </div>
-                    <div class="text-right font-urdu text-sm sm:text-base text-emerald-900 leading-relaxed pt-2 border-t border-slate-100">
-                        بہت مہربان، نہایت رحم والا ہے۔
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono flex items-center justify-center">4</span>
-                        <span class="text-xs text-slate-400">آیت نمبر 4</span>
-                    </div>
-                    <div class="text-right font-arabic text-2xl sm:text-3xl text-slate-900 leading-loose py-2 font-bold">
-                        مَالِكِ يَوْمِ الدِّينِ ۝٤
-                    </div>
-                    <div class="text-right font-urdu text-sm sm:text-base text-emerald-900 leading-relaxed pt-2 border-t border-slate-100">
-                        روزِ جزا (قیامت کے دن) کا مالک ہے۔
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono flex items-center justify-center">5</span>
-                        <span class="text-xs text-slate-400">آیت نمبر 5</span>
-                    </div>
-                    <div class="text-right font-arabic text-2xl sm:text-3xl text-slate-900 leading-loose py-2 font-bold">
-                        إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ ۝٥
-                    </div>
-                    <div class="text-right font-urdu text-sm sm:text-base text-emerald-900 leading-relaxed pt-2 border-t border-slate-100">
-                        ہم تیری ہی عبادت کرتے ہیں اور تجھ ہی سے مدد مانگتے ہیں۔
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono flex items-center justify-center">6</span>
-                        <span class="text-xs text-slate-400">آیت نمبر 6</span>
-                    </div>
-                    <div class="text-right font-arabic text-2xl sm:text-3xl text-slate-900 leading-loose py-2 font-bold">
-                        اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ ۝٦
-                    </div>
-                    <div class="text-right font-urdu text-sm sm:text-base text-emerald-900 leading-relaxed pt-2 border-t border-slate-100">
-                        ہمیں سیدھے راستے کی ہدایت فرما۔
-                    </div>
-                </div>
-
-                <div class="p-6 rounded-2xl bg-white border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold font-mono flex items-center justify-center">7</span>
-                        <span class="text-xs text-slate-400">آیت نمبر 7</span>
-                    </div>
-                    <div class="text-right font-arabic text-2xl sm:text-3xl text-slate-900 leading-loose py-2 font-bold">
-                        صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ ۝٧
-                    </div>
-                    <div class="text-right font-urdu text-sm sm:text-base text-emerald-900 leading-relaxed pt-2 border-t border-slate-100">
-                        ان لوگوں کا راستہ جن پر تو نے انعام فرمایا، جن پر نہ غضب ہوا اور نہ وہ گمراہ ہوئے۔
-                    </div>
-                </div>
+                <!-- Dynamically populated via JS -->
             </div>
         </div>
     </div>
@@ -165,8 +91,7 @@
     const surahData = {
         "1": {
             title: "سورۃ الفاتحہ (Al-Fatiha)",
-            info: "مکیہ • 7 آیات • قاری مشاری راشد العفاسی",
-            audio: "https://server8.mp3quran.net/afs/001.mp3",
+            info: "مکیہ • 7 آیات",
             verses: [
                 { num: 1, arabic: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ ۝١", urdu: "شروع اللہ کے نام سے جو بڑا مہربان نہایت رحم فرمانے والا ہے۔" },
                 { num: 2, arabic: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ ۝٢", urdu: "سب تعریفیں اللہ ہی کے لیے ہیں جو تمام جہانوں کا پالنے والا ہے۔" },
@@ -179,8 +104,7 @@
         },
         "112": {
             title: "سورۃ الاخلاص (Al-Ikhlas)",
-            info: "مکیہ • 4 آیات • قاری مشاری راشد العفاسی",
-            audio: "https://server8.mp3quran.net/afs/112.mp3",
+            info: "مکیہ • 4 آیات",
             verses: [
                 { num: 1, arabic: "قُلْ هُوَ اللَّهُ أَحَدٌ ۝١", urdu: "آپ فرما دیجیے: وہ اللہ ایک (اور یکتا) ہے۔" },
                 { num: 2, arabic: "اللَّهُ الصَّمَدُ ۝٢", urdu: "اللہ بے نیاز ہے (سب اس کے محتاج ہیں)۔" },
@@ -190,8 +114,7 @@
         },
         "113": {
             title: "سورۃ الفلق (Al-Falaq)",
-            info: "مکیہ • 5 آیات • قاری مشاری راشد العفاسی",
-            audio: "https://server8.mp3quran.net/afs/113.mp3",
+            info: "مکیہ • 5 آیات",
             verses: [
                 { num: 1, arabic: "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ ۝١", urdu: "آپ فرمائیے: میں صبح کے رب کی پناہ مانگتا ہوں۔" },
                 { num: 2, arabic: "مِن شَرِّ مَا خَلَقَ ۝٢", urdu: "ہر اس چیز کے شر سے جو اس نے پیدا فرمائی۔" },
@@ -202,8 +125,7 @@
         },
         "114": {
             title: "سورۃ الناس (An-Nas)",
-            info: "مکیہ • 6 آیات • قاری مشاری راشد العفاسی",
-            audio: "https://server8.mp3quran.net/afs/114.mp3",
+            info: "مکیہ • 6 آیات",
             verses: [
                 { num: 1, arabic: "قُلْ أَعُوذُ بِرَبِّ النَّاسِ ۝١", urdu: "آپ فرمائیے: میں لوگوں کے پروردگار کی پناہ مانگتا ہوں۔" },
                 { num: 2, arabic: "مَلِكِ النَّاسِ ۝٢", urdu: "جو سب لوگوں کا بادشاہ ہے۔" },
@@ -215,18 +137,46 @@
         }
     };
 
-    function changeSurah() {
-        const val = document.getElementById('surahSelect').value;
-        const data = surahData[val] || surahData["1"];
+    // قاریوں کے سرور فولڈرز کی میپنگ
+    const reciterServers = {
+        "afs": "https://server8.mp3quran.net/afs/",
+        "sds": "https://server11.mp3quran.net/sds/",
+        "shuraim": "https://server7.mp3quran.net/shur/",
+        "abdulsamad": "https://server7.mp3quran.net/abdulsamad/",
+        "ajm": "https://server10.mp3quran.net/ajm/",
+        "maher": "https://server12.mp3quran.net/maher/",
+        "minshawi": "https://server10.mp3quran.net/minsh/",
+        "dosari": "https://server6.mp3quran.net/dosari/"
+    };
+
+    function padZero(num) {
+        if (num < 10) return "00" + num;
+        if (num < 100) return "0" + num;
+        return num;
+    }
+
+    function updateQuranPlayer() {
+        const surahVal = document.getElementById('surahSelect').value;
+        const reciterKey = document.getElementById('reciterSelect').value;
+        
+        const data = surahData[surahVal] || surahData["1"];
+        const reciterSelectObj = document.getElementById('reciterSelect');
+        const reciterName = reciterSelectObj.options[reciterSelectObj.selectedIndex].text;
 
         document.getElementById('currentSurahTitle').innerText = data.title;
-        document.getElementById('currentSurahInfo').innerText = data.info;
+        document.getElementById('currentSurahInfo').innerText = reciterName;
+
+        // آڈیو لنک خود بخود قاری اور سورۃ کے نمبر کے حساب سے بن جائے گا (مثلاً 001.mp3)
+        const baseUrl = reciterServers[reciterKey] || reciterServers["afs"];
+        const formattedSurahNum = padZero(parseInt(surahVal));
+        const audioSrc = baseUrl + formattedSurahNum + ".mp3";
 
         const audio = document.getElementById('quranAudio');
         const source = document.getElementById('audioSource');
-        source.src = data.audio;
+        source.src = audioSrc;
         audio.load();
 
+        // آیات کو رینڈر کرنا
         const container = document.getElementById('versesList');
         container.innerHTML = '';
 
@@ -248,5 +198,10 @@
             container.appendChild(card);
         });
     }
+
+// صفحہ لوڈ ہوتے ہی پہلی سورۃ لوڈ کر دیں
+window.onload = function() {
+    updateQuranPlayer();
+};
 </script>
 {% endblock %}

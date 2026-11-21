@@ -7,11 +7,12 @@
     --primary-emerald-dark: #022c22;
     --gold-accent: #d97706;
     --gold-accent-light: #fbbf24;
-    --islamic-bg: #f8fafc;
+    --islamic-bg: #fafaf9;
 }
 
 body {
     font-family: 'Outfit', sans-serif;
+    background-color: var(--islamic-bg);
 }
 
 .font-arabic {
@@ -20,7 +21,13 @@ body {
 
 .font-urdu {
     font-family: 'Noto Nastaliq Urdu', 'Amiri', serif;
-    line-height: 2.2;
+    line-height: 1.95;
+}
+
+@media (max-width: 640px) {
+    .font-urdu {
+        line-height: 1.72;
+    }
 }
 
 /* Custom Scrollbar */
@@ -28,13 +35,16 @@ body {
     width: 6px;
     height: 6px;
 }
+
 ::-webkit-scrollbar-track {
     background: #f1f5f9;
 }
+
 ::-webkit-scrollbar-thumb {
     background: #cbd5e1;
     border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
     background: #059669;
 }
@@ -57,7 +67,7 @@ body {
 
 /* Glassmorphism Cards */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.92);
+    background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(14px);
     border: 1px solid rgba(226, 232, 240, 0.9);
 }
@@ -68,7 +78,7 @@ body {
     border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-/* Video Tile Styling 
+/* Video Tile Styling */
 .video-tile {
     position: relative;
     border-radius: 0.75rem;
@@ -89,7 +99,7 @@ body {
     object-fit: cover;
 }
 
- PDF & Drawing Layer Container */
+/* PDF & Drawing Layer Container */
 .pdf-viewport-container {
     position: relative;
     display: inline-block;
@@ -136,7 +146,7 @@ body {
 }
 
 /* Mobile Bottom Navigation Offset */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .content-with-bottom-nav {
         padding-bottom: 5rem;
     }
